@@ -1,24 +1,20 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 	"os"
 
+	_ "github.com/lib/pq"
 	"github.com/viniciusLambert/blog-aggregator/internal/config"
+	"github.com/viniciusLambert/blog-aggregator/internal/database"
 )
 
 func main() {
-	cfgData, err := config.ReadConfig()
+	st, err := SetupState()
 	if err != nil {
-		log.Fatalf("error getting config file: %v", err)
-	}
-
-	if len(os.Args) < 2 {
-		log.Fatal("not enough arguments")
-	}
-
-	st := state{
-		cfg: &cfgData,
+		log.Fatalf("error while setup state: %v\n", err)
 	}
 
 	args := os.Args
@@ -32,9 +28,31 @@ func main() {
 	}
 
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 
 	err = cmds.run(&st, cmd)
 	if err != nil {
 		log.Fatalf("failed running command: %v\n", err)
 	}
+}
+
+func SetupState() (state, error) {
+	cfgData, err := config.ReadConfig()
+	if err != nil {
+		return state{}, fmt.Errorf("error getting config file: %v", err)
+	}
+
+	db, err := sql.Open("postgres", cfgData.DbURL)
+	if err != nil {
+		return state{}, fmt.Errorf("error connecting database: %v", err)
+	}
+	dbQueries := database.New(db)
+
+	if len(os.Args) < 2 {
+		return state{}, fmt.Errorf("not enough arguments")
+	}
+	return state{
+		db:  dbQueries,
+		cfg: &cfgData,
+	}, nil
 }
