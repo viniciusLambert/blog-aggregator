@@ -6,7 +6,7 @@ create table feeds(
   name text not null,
   url text not null,
   user_id uuid not null references users(id) on delete cascade,
-  unique(url),
+  unique(url)
 );
 
 -- +goose Down
