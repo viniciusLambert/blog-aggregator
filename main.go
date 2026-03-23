@@ -29,6 +29,7 @@ func main() {
 
 	cmds.register("login", handlerLogin)
 	cmds.register("register", handlerRegister)
+	cmds.register("reset", handlerReset)
 
 	err = cmds.run(&st, cmd)
 	if err != nil {
