@@ -20,3 +20,12 @@ select f.*, u.name as user_name
 from feeds f
 left join users u
 on f.user_id = u.id;
+
+-- name: GetFeedsByUrl :one
+select *
+from feeds
+where url = $1;
+
+
+-- name: ClearFeeds :exec
+delete from feeds;

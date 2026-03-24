@@ -33,6 +33,11 @@ func handlerAddFeed(s *state, cmd command) error {
 		return fmt.Errorf("error creating new feed: %v", err)
 	}
 
+	cmd.Args[0] = cmd.Args[1]
+	if err = handlerFollow(s, cmd); err != nil {
+		return fmt.Errorf("error while creating follow bond: %v", err)
+	}
+
 	fmt.Println(feed)
 	return nil
 }
