@@ -9,3 +9,14 @@ VALUES (
   $6
 )
 RETURNING *;
+
+-- name: FetchFeeds :many
+select *
+from feeds;
+
+-- name: FetchFeedsWithUserName :many
+
+select f.*, u.name as user_name
+from feeds f
+left join users u
+on f.user_id = u.id;
