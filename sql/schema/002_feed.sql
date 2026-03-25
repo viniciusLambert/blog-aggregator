@@ -10,4 +10,4 @@ create table feeds(
 );
 
 -- +goose Down
-drop table feed;
+drop table feeds;

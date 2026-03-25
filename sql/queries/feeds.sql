@@ -29,3 +29,15 @@ where url = $1;
 
 -- name: ClearFeeds :exec
 delete from feeds;
+
+
+-- name: MarkFeedFetched :exec
+update feeds
+set updated_at = CURRENT_TIMESTAMP, last_fetched_at = CURRENT_TIMESTAMP
+where id = $1;
+
+-- name: GetNextFeedToFetch :one
+select *
+from feeds
+order by last_fetched_at
+nulls first;

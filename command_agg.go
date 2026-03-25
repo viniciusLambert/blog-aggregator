@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"html"
 	"io"
 	"net/http"
+	"time"
 )
 
 type RSSFeed struct {
@@ -23,6 +25,27 @@ type RSSItem struct {
 	Link        string `xml:"link"`
 	Description string `xml:"description"`
 	PubDate     string `xml:"pubDate"`
+}
+
+func handlerAgg(s *state, cmd command) error {
+	if len(cmd.Args) == 0 {
+		return errors.New("the add handles expects a single argument, the time between requests.")
+	}
+
+	timeBetweenRequests, err := time.ParseDuration(cmd.Args[0])
+	if err != nil {
+		return fmt.Errorf("error parsing time: %v", err)
+	}
+
+	ticker := time.NewTicker(timeBetweenRequests)
+	for ; ; <-ticker.C {
+		err = scrapeFeeds(s)
+		if err != nil {
+			fmt.Printf("error scraping feed: %v\n", err)
+		}
+	}
+
+	return nil
 }
 
 func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
@@ -61,13 +84,24 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	return &rssFeed, nil
 }
 
-func handlerAgg(s *state, cmd command) error {
-	ctx := context.Background()
-	feed, err := fetchFeed(ctx, "https://www.wagslane.dev/index.xml")
+func scrapeFeeds(s *state) error {
+	feed, err := s.db.GetNextFeedToFetch(context.Background())
 	if err != nil {
-		return err
+		return fmt.Errorf("error while getting next feed to Fetch: %v", err)
 	}
 
-	fmt.Println(feed)
+	if err := s.db.MarkFeedFetched(context.Background(), feed.ID); err != nil {
+		return fmt.Errorf("error markint feed fetched: %v", err)
+	}
+
+	rssFeed, err := fetchFeed(context.Background(), feed.Url)
+	if err != nil {
+		return fmt.Errorf("error fetching Feed: %v", err)
+	}
+
+	for _, item := range rssFeed.Channel.Item {
+		fmt.Println(item.Title)
+	}
+
 	return nil
 }
