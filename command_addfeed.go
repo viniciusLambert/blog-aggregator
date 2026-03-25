@@ -10,14 +10,9 @@ import (
 	"github.com/viniciusLambert/blog-aggregator/internal/database"
 )
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) < 2 {
 		return errors.New("the addfeed handler expects two arguments, the feed name and url")
-	}
-
-	currentUser, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("error get user data from database: %v", err)
 	}
 
 	feed, err := s.db.CreateFeed(context.Background(),
@@ -27,14 +22,14 @@ func handlerAddFeed(s *state, cmd command) error {
 			UpdatedAt: time.Now(),
 			Name:      cmd.Args[0],
 			Url:       cmd.Args[1],
-			UserID:    currentUser.ID,
+			UserID:    user.ID,
 		})
 	if err != nil {
 		return fmt.Errorf("error creating new feed: %v", err)
 	}
 
 	cmd.Args[0] = cmd.Args[1]
-	if err = handlerFollow(s, cmd); err != nil {
+	if err = handlerFollow(s, cmd, user); err != nil {
 		return fmt.Errorf("error while creating follow bond: %v", err)
 	}
 
