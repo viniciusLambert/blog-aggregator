@@ -1,4 +1,4 @@
-# Gator - RSS Feed Aggregator
+# blog-aggregator - RSS Feed Aggregator
 
 A CLI tool for aggregating and browsing RSS feeds, built with Go and PostgreSQL.
 
@@ -17,7 +17,7 @@ This compiles and installs the `blog-aggregator` binary to your `$GOPATH/bin`. M
 
 ## Configuration
 
-Gator reads its config from `~/.gatorconfig.json`. Create the file with the following structure:
+blog-aggregator reads its config from `~/.gatorconfig.json`. Create the file with the following structure:
 
 ```json
 {
@@ -48,39 +48,39 @@ goose -dir sql/schema postgres "postgres://username:password@localhost:5432/gato
 
 ```bash
 # Register a new user
-gator register <username>
+blog-aggregator register <username>
 
 # Log in as an existing user
-gator login <username>
+blog-aggregator login <username>
 
 # List all users
-gator users
+blog-aggregator users
 ```
 
 ### Feed management
 
 ```bash
 # Add a new RSS feed (requires login)
-gator addfeed <name> <url>
+blog-aggregator addfeed <name> <url>
 
 # List all available feeds
-gator feeds
+blog-aggregator feeds
 
 # Follow a feed (requires login)
-gator follow <url>
+blog-aggregator follow <url>
 
 # List feeds you follow (requires login)
-gator following
+blog-aggregator following
 
 # Unfollow a feed (requires login)
-gator unfollow <url>
+blog-aggregator unfollow <url>
 ```
 
 ### Aggregation
 
 ```bash
 # Start fetching feeds continuously (e.g., every 30 seconds)
-gator agg 30s
+blog-aggregator agg 30s
 ```
 
 This runs in the foreground, scraping each feed on the given interval. Keep it running in a separate terminal while you use the other commands.
@@ -89,8 +89,8 @@ This runs in the foreground, scraping each feed on the given interval. Keep it r
 
 ```bash
 # View the latest posts from feeds you follow (requires login)
-gator browse
+blog-aggregator browse
 
 # Limit the number of posts shown
-gator browse <limit>
+blog-aggregator browse <limit>
 ```
